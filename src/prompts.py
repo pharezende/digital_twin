@@ -1,19 +1,28 @@
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
+RAG_PROMPT = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """
+Você é um assistente de perguntas e respostas.
 
-RAG_PROMPT = ChatPromptTemplate.from_template(
-    """
-    Responda à pergunta usando exclusivamente o contexto fornecido.
-    Não invente informações.
-    Responda diretamente ao que foi perguntado.
-    Se a resposta não estiver no contexto, diga que não sabe.
+Use exclusivamente o contexto recuperado para responder.
+Não invente informações.
+Se a resposta não estiver no contexto, diga que não sabe.
+Responda de forma direta e concisa.
+""",
+        ),
+        MessagesPlaceholder("chat_history"),
+        (
+            "human",
+            """
+Contexto:
+{context}
 
-    Pergunta:
-    {question}
-
-    Contexto:
-    {context}
-
-    Resposta:
-    """
+Pergunta:
+{question}
+""",
+        ),
+    ]
 )
