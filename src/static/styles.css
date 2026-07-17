@@ -1,0 +1,106 @@
+.gradio-container {
+    max-width: 1120px !important;
+    margin: 0 auto !important;
+    padding: 24px 20px !important;
+}
+
+/* Header */
+
+#app-header {
+    text-align: center;
+    margin-bottom: 22px;
+}
+
+#app-header h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+
+#app-header p {
+    max-width: 720px;
+    margin: 10px auto 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.75;
+}
+
+/* Main card */
+
+#assistant-card {
+    padding: 20px;
+    border: 1px solid var(--border-color-primary);
+    border-radius: 22px;
+    background: var(--background-fill-primary);
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+}
+
+/* Chat area */
+
+#chatbot {
+    border: 1px solid var(--border-color-primary);
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--background-fill-secondary);
+}
+
+#chatbot .message {
+    border-radius: 14px;
+}
+
+/* Input */
+
+#chat-input {
+    margin-top: 12px;
+}
+
+#chat-input textarea {
+    min-height: 52px !important;
+    padding: 14px 16px !important;
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
+    border-radius: 14px !important;
+}
+
+/* Examples */
+
+#examples-title {
+    margin: 18px 0 8px;
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+.example-row {
+    gap: 10px;
+}
+
+/* Footer */
+
+#footer-text {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 0.85rem;
+    opacity: 0.6;
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+    .gradio-container {
+        padding: 12px !important;
+    }
+
+    #app-header h1 {
+        font-size: 1.7rem;
+    }
+
+    #assistant-card {
+        padding: 12px;
+        border-radius: 16px;
+    }
+
+    #chatbot {
+        height: 460px !important;
+    }
+}
