@@ -23,6 +23,7 @@ from config import (
     PDF_PATH,
 )
 from prompts import RAG_PROMPT
+from ui import create_ui
 
 
 def print_context(retriever: VectorStoreRetriever, question: str):
@@ -44,15 +45,15 @@ def split_documents(documents: list[Document]) -> list[Document]:
     """Split documents into smaller overlapping chunks."""
 
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
+        chunk_size=500,
+        chunk_overlap=100,
         add_start_index=True,
     )
 
     return text_splitter.split_documents(documents)
 
 
-def create_vector_store(chunks: list[Document], embedding: OllamaEmbeddings) -> Chroma:
+def create_or_get_vector_store(embedding: OllamaEmbeddings) -> Chroma:
     """Create or Get a local Chroma vector store."""
 
     vector_store = Chroma(
@@ -61,13 +62,12 @@ def create_vector_store(chunks: list[Document], embedding: OllamaEmbeddings) -> 
         persist_directory=str(CHROMA_DIRECTORY),
     )
 
-    if vector_store._collection.count() == 0:
-        if not chunks:
-            raise ValueError(
-                "The Chroma collection is empty and no chunks were provided."
-            )
+    if vector_store._collection.count() > 0:
+        return vector_store
 
-        vector_store.add_documents(chunks)
+    documents = PyPDFLoader(PDF_PATH).load()
+    chunks = split_documents(documents)
+    vector_store.add_documents(chunks)
 
     return vector_store
 
@@ -109,50 +109,47 @@ def create_rag_chain(retriever: VectorStoreRetriever) -> Runnable[str, str]:
 
 def main():
     system_initial_message = "Como posso te ajudar?"
-
-    documents = PyPDFLoader(PDF_PATH).load()
-    chunks = split_documents(documents)
     embedding = OllamaEmbeddings(
         model=EMBEDDING_MODEL,
         base_url=OLLAMA_BASE_URL,
     )
-    vector_store = create_vector_store(chunks, embedding)
+    vector_store = create_or_get_vector_store(embedding)
 
     chat_history = []
 
-    while True:
-        question = input("\nVocê: ").strip()
+    # question = input("\nVocê: ").strip()
 
-        if question.lower() in {"exit", "quit", "sair"}:
-            print("Término do chat.")
-            break
+    retriever = vector_store.as_retriever(
+        search_type="similarity",
+        search_kwargs={
+            "k": K,
+        },
+    )
 
-        if not question:
-            continue
+    rag_chain = create_rag_chain(retriever)
 
-        retriever = vector_store.as_retriever(
-            search_type="similarity",
-            search_kwargs={
-                "k": K,
-            },
-        )
+    demo = create_ui(rag_chain)
 
-        rag_chain = create_rag_chain(retriever)
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=7860,
+        show_error=True,
+    )
 
-        answer = rag_chain.invoke(
-            {
-                "question": question,
-                "chat_history": chat_history,
-            }
-        )
+    # answer = rag_chain.invoke(
+    #     {
+    #         "question": question,
+    #         "chat_history": chat_history,
+    #     }
+    # )
 
-        chat_history.append(HumanMessage(content=question))
-        chat_history.append(AIMessage(content=answer))
+    # chat_history.append(HumanMessage(content=question))
+    # chat_history.append(AIMessage(content=answer))
 
-        print(f"\nAgent: {answer}")
+    #     print(f"\nAgent: {answer}")
 
-    print("\Resposta:")
-    pprint(answer)
+    # print("\Resposta:")
+    # pprint(answer)
 
 
 if __name__ == "__main__":
