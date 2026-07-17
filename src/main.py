@@ -1,4 +1,5 @@
 from pprint import pprint
+from tkinter import RADIOBUTTON
 from chromadb import Documents
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
@@ -8,9 +9,7 @@ from langchain_openrouter import ChatOpenRouter
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_ollama import ChatOllama, OllamaEmbeddings
-from langsmith import Client
 from langchain_core.output_parsers import StrOutputParser
-from dotenv import load_dotenv
 
 from config import (
     CHROMA_COLLECTION,
@@ -21,6 +20,7 @@ from config import (
     OLLAMA_BASE_URL,
     PDF_PATH,
 )
+from prompts import RAG_PROMPT
 
 
 def print_context(retriever: VectorStoreRetriever, question: str):
@@ -85,26 +85,7 @@ def format_docs(documents: list[Documents]) -> str:
 def create_rag_chain(retriever: VectorStoreRetriever) -> Runnable[str, str]:
     """Create the retrieval-augmented generation chain."""
 
-    client = Client()
-
     from langchain_core.prompts import ChatPromptTemplate
-
-    prompt = ChatPromptTemplate.from_template(
-        """
-    Responda à pergunta usando exclusivamente o contexto fornecido.
-    Não invente informações.
-    Responda diretamente ao que foi perguntado.
-    Se a resposta não estiver no contexto, diga que não sabe.
-
-    Pergunta:
-    {question}
-
-    Contexto:
-    {context}
-
-    Resposta:
-    """
-    )
 
     llm = ChatOllama(
         model=LLM_MODEL,
@@ -117,7 +98,7 @@ def create_rag_chain(retriever: VectorStoreRetriever) -> Runnable[str, str]:
             "context": retriever | format_docs,
             "question": RunnablePassthrough(),
         }
-        | prompt
+        | RAG_PROMPT
         | llm
         | StrOutputParser()
     )
