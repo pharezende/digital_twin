@@ -22,7 +22,7 @@ from config import (
     OLLAMA_BASE_URL,
     PDF_PATH,
 )
-from prompts import RAG_PROMPT
+from prompts import PROMPTS
 from ui import create_ui
 
 
@@ -84,8 +84,8 @@ def format_docs(documents: list[Documents]) -> str:
     )
 
 
-def create_rag_chain(retriever: VectorStoreRetriever) -> Runnable[str, str]:
-    """Create the retrieval-augmented generation chain."""
+def create_rag_chain(retriever: VectorStoreRetriever) -> dict[str, Runnable]:
+    """Create the retrieval-augmented generation chains, one for each language."""
 
     llm = ChatOllama(
         model=LLM_MODEL,
@@ -93,31 +93,27 @@ def create_rag_chain(retriever: VectorStoreRetriever) -> Runnable[str, str]:
         temperature=0,  # Low temperature to be less creative
     )
 
-    rag_chain = (
-        {
+    rag_chains = {
+        language: {
             "context": itemgetter("question") | retriever | format_docs,
             "question": itemgetter("question"),
             "chat_history": itemgetter("chat_history"),
         }
-        | RAG_PROMPT
+        | prompt
         | llm
         | StrOutputParser()
-    )
+        for language, prompt in PROMPTS.items()
+    }
 
-    return rag_chain
+    return rag_chains
 
 
 def main():
-    system_initial_message = "Como posso te ajudar?"
     embedding = OllamaEmbeddings(
         model=EMBEDDING_MODEL,
         base_url=OLLAMA_BASE_URL,
     )
     vector_store = create_or_get_vector_store(embedding)
-
-    chat_history = []
-
-    # question = input("\nVocê: ").strip()
 
     retriever = vector_store.as_retriever(
         search_type="similarity",
@@ -135,21 +131,6 @@ def main():
         server_port=7860,
         show_error=True,
     )
-
-    # answer = rag_chain.invoke(
-    #     {
-    #         "question": question,
-    #         "chat_history": chat_history,
-    #     }
-    # )
-
-    # chat_history.append(HumanMessage(content=question))
-    # chat_history.append(AIMessage(content=answer))
-
-    #     print(f"\nAgent: {answer}")
-
-    # print("\Resposta:")
-    # pprint(answer)
 
 
 if __name__ == "__main__":

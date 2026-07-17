@@ -1,30 +1,10 @@
 import gradio as gr
-from pathlib import Path
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.runnables import Runnable
-import os
-
-CSS_PATH = os.path.join(
-    os.path.dirname(__file__),
-    "static",
-    "styles.css",
-)
-
-PREDEFINED_QUESTIONS = [
-    "Qual é o nome completo de Dina?",
-    "Qual é a idade de Dina?",
-    "Como é a aparência física de Dina?",
-]
-
-
-def load_css() -> str:
-    with open(CSS_PATH, encoding="utf-8") as file:
-        return file.read()
+from translations import TRANSLATIONS
 
 
 def convert_history(history: list) -> list:
-    """Converte o histórico do Gradio para mensagens LangChain."""
-
     messages = []
 
     for item in history:
@@ -39,101 +19,131 @@ def convert_history(history: list) -> list:
 
         if role == "user":
             messages.append(HumanMessage(content=content))
-
         elif role == "assistant":
             messages.append(AIMessage(content=content))
 
     return messages
 
 
-def create_ui(rag_chain: Runnable) -> gr.Blocks:
-    """Cria a interface Gradio do assistente RAG."""
+def select_language(language: str):
+    texts = TRANSLATIONS[language]
 
-    def respond(message: str, history: list) -> str:
+    initial_history = [
+        {
+            "role": "assistant",
+            "content": texts["welcome_message"],
+        }
+    ]
+
+    return (
+        gr.update(visible=False),
+        gr.update(visible=True),
+        language,
+        f"# {texts['title']}",
+        texts["description"],
+        gr.update(placeholder=texts["placeholder"]),
+        initial_history,
+    )
+
+
+def create_ui(
+    rag_chains: dict[str, Runnable],
+) -> gr.Blocks:
+
+    def respond(
+        message: str,
+        history: list,
+        language: str,
+    ) -> str:
+        texts = TRANSLATIONS[language]
         question = message.strip()
 
         if not question:
-            return "Digite uma pergunta sobre o documento."
+            return texts["empty_question"]
 
         try:
-            return rag_chain.invoke(
+            return rag_chains[language].invoke(
                 {
                     "question": question,
                     "chat_history": convert_history(history),
                 }
             )
-
         except Exception as error:
-            print(f"Erro durante a execução do RAG: {error}")
+            print(f"RAG error: {error}")
+            return texts["error_message"]
 
-            return (
-                "Não foi possível processar a pergunta. "
-                "Verifique se o Ollama e o banco vetorial estão disponíveis."
+    with gr.Blocks(title="Digital Twin Assistant") as demo:
+        selected_language = gr.State("pt")
+
+        # Initial screen
+        with gr.Column(visible=True) as language_screen:
+            gr.Markdown(
+                """
+                # Bem-vindo / Welcome
+
+                Escolha o idioma para continuar.  
+                Choose a language to continue.
+                """
             )
 
-    theme = gr.themes.Soft(
-        primary_hue="indigo",
-        secondary_hue="blue",
-        neutral_hue="slate",
-    )
+            with gr.Row():
+                portuguese_button = gr.Button(
+                    "🇧🇷 Português",
+                    variant="primary",
+                )
 
-    with gr.Blocks(
-        theme=theme,
-        css=load_css(),
-        title="Assistente de Documentos",
-    ) as demo:
+                english_button = gr.Button(
+                    "🇺🇸 English",
+                )
 
-        gr.HTML(
-            """
-            <header id="app-header">
-                <h1>Assistente de Documentos</h1>
-                <p>
-                    Consulte o conteúdo do PDF usando recuperação semântica
-                    e respostas fundamentadas no documento.
-                </p>
-            </header>
-            """
-        )
+        # Main application
+        with gr.Column(visible=False) as application_screen:
+            title = gr.Markdown()
+            description = gr.Markdown()
 
-        with gr.Column(elem_id="assistant-card"):
             chatbot = gr.Chatbot(
                 elem_id="chatbot",
                 height=520,
-                placeholder=(
-                    "<strong>Olá!</strong><br>"
-                    "Escolha uma pergunta sugerida ou escreva a sua."
-                ),
             )
 
             textbox = gr.Textbox(
                 elem_id="chat-input",
-                placeholder="Digite uma pergunta sobre o documento...",
                 container=False,
-                lines=1,
-                max_lines=4,
             )
-
-            gr.HTML('<div id="examples-title">Perguntas sugeridas</div>')
 
             gr.ChatInterface(
                 fn=respond,
                 chatbot=chatbot,
                 textbox=textbox,
-                examples=PREDEFINED_QUESTIONS,
-                submit_btn="Enviar",
-                stop_btn="Parar",
-                autofocus=True,
-                autoscroll=True,
-                show_progress="minimal",
+                additional_inputs=[selected_language],
             )
 
-        gr.HTML(
-            """
-            <footer id="footer-text">
-                As respostas são produzidas com base nos trechos
-                recuperados do documento indexado.
-            </footer>
-            """
-        )
+            portuguese_button.click(
+                fn=lambda: select_language("pt"),
+                inputs=None,
+                outputs=[
+                    language_screen,
+                    application_screen,
+                    selected_language,
+                    title,
+                    description,
+                    textbox,
+                    chatbot,
+                ],
+            )
+
+            english_button.click(
+                fn=lambda: select_language("en"),
+                inputs=None,
+                outputs=[
+                    language_screen,
+                    application_screen,
+                    selected_language,
+                    title,
+                    description,
+                    textbox,
+                    chatbot,
+                ],
+            )
 
     return demo
