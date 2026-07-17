@@ -1,8 +1,10 @@
+from operator import itemgetter
 from pprint import pprint
 from tkinter import RADIOBUTTON
 from chromadb import Documents
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.runnables import Runnable, RunnablePassthrough
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_openrouter import ChatOpenRouter
@@ -85,18 +87,17 @@ def format_docs(documents: list[Documents]) -> str:
 def create_rag_chain(retriever: VectorStoreRetriever) -> Runnable[str, str]:
     """Create the retrieval-augmented generation chain."""
 
-    from langchain_core.prompts import ChatPromptTemplate
-
     llm = ChatOllama(
         model=LLM_MODEL,
         base_url=OLLAMA_BASE_URL,
-        temperature=0.1,
+        temperature=0,  # Low temperature to be less creative
     )
 
     rag_chain = (
         {
-            "context": retriever | format_docs,
-            "question": RunnablePassthrough(),
+            "context": itemgetter("question") | retriever | format_docs,
+            "question": itemgetter("question"),
+            "chat_history": itemgetter("chat_history"),
         }
         | RAG_PROMPT
         | llm
@@ -116,18 +117,39 @@ def main():
         base_url=OLLAMA_BASE_URL,
     )
     vector_store = create_vector_store(chunks, embedding)
-    retriever = vector_store.as_retriever(
-        search_type="similarity",
-        search_kwargs={
-            "k": K,
-        },
-    )
-    rag_chain = create_rag_chain(retriever)
 
-    # question = "Fale me sobre Diana"
-    question = "Qual o nome completo de Diana? Ela tem quantos anos?"
+    chat_history = []
 
-    answer = rag_chain.invoke(question)
+    while True:
+        question = input("\nVocê: ").strip()
+
+        if question.lower() in {"exit", "quit", "sair"}:
+            print("Término do chat.")
+            break
+
+        if not question:
+            continue
+
+        retriever = vector_store.as_retriever(
+            search_type="similarity",
+            search_kwargs={
+                "k": K,
+            },
+        )
+
+        rag_chain = create_rag_chain(retriever)
+
+        answer = rag_chain.invoke(
+            {
+                "question": question,
+                "chat_history": chat_history,
+            }
+        )
+
+        chat_history.append(HumanMessage(content=question))
+        chat_history.append(AIMessage(content=answer))
+
+        print(f"\nAgent: {answer}")
 
     print("\Resposta:")
     pprint(answer)
