@@ -20,8 +20,7 @@ TRANSLATIONS = {
         "error_message": "Your question could not be processed.",
         "suggested_questions": "Suggested questions",
         "welcome_message": (
-            "Hello! I am your document assistant. "
-            "Ask me a question about the PDF content."
+            "Hello! I am your assistant. Ask me a question about Pedro."
         ),
     },
 }

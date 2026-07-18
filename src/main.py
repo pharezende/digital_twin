@@ -1,17 +1,15 @@
 from operator import itemgetter
-from pprint import pprint
-from tkinter import RADIOBUTTON
 from chromadb import Documents
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
-from langchain_core.messages import AIMessage, HumanMessage
-from langchain_core.runnables import Runnable, RunnablePassthrough
+from langchain_core.runnables import Runnable
 from langchain_core.vectorstores import VectorStoreRetriever
-from langchain_openrouter import ChatOpenRouter
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_core.output_parsers import StrOutputParser
+from prompts import PROMPTS
+from ui import create_ui
 
 from config import (
     CHROMA_COLLECTION,
@@ -22,8 +20,6 @@ from config import (
     OLLAMA_BASE_URL,
     PDF_PATH,
 )
-from prompts import PROMPTS
-from ui import create_ui
 
 
 def print_context(retriever: VectorStoreRetriever, question: str):
@@ -53,7 +49,9 @@ def split_documents(documents: list[Document]) -> list[Document]:
     return text_splitter.split_documents(documents)
 
 
-def create_or_get_vector_store(embedding: OllamaEmbeddings) -> Chroma:
+def create_or_get_vector_store(
+    embedding: OllamaEmbeddings, reset_collection: bool = False
+) -> Chroma:
     """Create or Get a local Chroma vector store."""
 
     vector_store = Chroma(
@@ -61,6 +59,9 @@ def create_or_get_vector_store(embedding: OllamaEmbeddings) -> Chroma:
         embedding_function=embedding,
         persist_directory=str(CHROMA_DIRECTORY),
     )
+
+    if reset_collection:
+        vector_store.reset_collection()
 
     if vector_store._collection.count() > 0:
         return vector_store
@@ -84,7 +85,7 @@ def format_docs(documents: list[Documents]) -> str:
     )
 
 
-def create_rag_chain(retriever: VectorStoreRetriever) -> dict[str, Runnable]:
+def create_rag_chains(retriever: VectorStoreRetriever) -> dict[str, Runnable]:
     """Create the retrieval-augmented generation chains, one for each language."""
 
     llm = ChatOllama(
@@ -113,7 +114,8 @@ def main():
         model=EMBEDDING_MODEL,
         base_url=OLLAMA_BASE_URL,
     )
-    vector_store = create_or_get_vector_store(embedding)
+
+    vector_store = create_or_get_vector_store(embedding, True)
 
     retriever = vector_store.as_retriever(
         search_type="similarity",
@@ -122,7 +124,7 @@ def main():
         },
     )
 
-    rag_chain = create_rag_chain(retriever)
+    rag_chain = create_rag_chains(retriever)
 
     demo = create_ui(rag_chain)
 

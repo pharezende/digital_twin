@@ -26,6 +26,7 @@ def convert_history(history: list) -> list:
 
 
 def select_language(language: str):
+    """Select the language, can be portuguese or english."""
     texts = TRANSLATIONS[language]
 
     initial_history = [
@@ -49,6 +50,7 @@ def select_language(language: str):
 def create_ui(
     rag_chains: dict[str, Runnable],
 ) -> gr.Blocks:
+    """Create UI using gradio"""
 
     def respond(
         message: str,
@@ -96,7 +98,7 @@ def create_ui(
                     "🇺🇸 English",
                 )
 
-        # Main application
+        # The chatbox screen, perhaps this can become a new function later.
         with gr.Column(visible=False) as application_screen:
             title = gr.Markdown()
             description = gr.Markdown()
