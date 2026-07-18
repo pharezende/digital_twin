@@ -9,10 +9,11 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_core.output_parsers import StrOutputParser
-from prompts import PROMPTS
-from ui import create_ui
+from .prompts import PROMPTS
+from .metrics import VECTOR_STORE_DOCUMENTS
+from .ui import create_ui
 
-from config import (
+from .config import (
     CHROMA_COLLECTION,
     CHROMA_DIRECTORY,
     EMBEDDING_MODEL,
@@ -20,6 +21,7 @@ from config import (
     LLM_MODEL,
     OLLAMA_BASE_URL,
     PDF_PATH,
+    RESET_VECTOR_STORE,
 )
 
 
@@ -51,7 +53,7 @@ def split_documents(documents: list[Document]) -> list[Document]:
 
 
 def create_or_get_vector_store(
-    embedding: OllamaEmbeddings, reset_collection: bool = False
+    embedding: OllamaEmbeddings, reset_vector_store: bool = False
 ) -> Chroma:
     """Create or Get a local Chroma vector store."""
 
@@ -61,15 +63,19 @@ def create_or_get_vector_store(
         persist_directory=str(CHROMA_DIRECTORY),
     )
 
-    if reset_collection:
+    if reset_vector_store:
+        print("Resetting the existing vector-store collection.")
         vector_store.reset_collection()
 
     if vector_store._collection.count() > 0:
+        VECTOR_STORE_DOCUMENTS.set(len(vector_store.get()["ids"]))
         return vector_store
 
     documents = PyPDFLoader(PDF_PATH).load()
     chunks = split_documents(documents)
     vector_store.add_documents(chunks)
+
+    VECTOR_STORE_DOCUMENTS.set(len(vector_store.get()["ids"]))
 
     return vector_store
 
@@ -116,7 +122,7 @@ def main():
         base_url=OLLAMA_BASE_URL,
     )
 
-    vector_store = create_or_get_vector_store(embedding, True)
+    vector_store = create_or_get_vector_store(embedding, RESET_VECTOR_STORE)
 
     retriever = vector_store.as_retriever(
         search_type="similarity",

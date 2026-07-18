@@ -13,3 +13,5 @@ documents/
 .pytest_cache
 persistence/
 .vscode
+.env.docker
+container_data

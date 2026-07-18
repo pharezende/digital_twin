@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-
+from setuptools._distutils.util import strtobool
 from dotenv import load_dotenv
 
 
@@ -14,3 +14,4 @@ CHROMA_DIRECTORY = Path(os.getenv("CHROMA_DIRECTORY"))
 CHROMA_COLLECTION = os.getenv("CHROMA_COLLECTION")
 PDF_PATH = os.getenv("PDF_PATH")
 K = int(os.getenv("K"))
+RESET_VECTOR_STORE = strtobool(os.getenv("RESET_VECTOR_STORE"))

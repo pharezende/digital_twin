@@ -18,4 +18,5 @@ dependencies = [
     "pypdf>=6.14.2",
     "pytest>=9.1.1",
     "python-dotenv>=1.2.2",
+    "setuptools>=83.0.0",
 ]
