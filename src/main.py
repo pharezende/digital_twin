@@ -1,5 +1,6 @@
 from operator import itemgetter
 from chromadb import Documents
+from prometheus_client import start_http_server
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.runnables import Runnable
@@ -127,6 +128,11 @@ def main():
     rag_chain = create_rag_chains(retriever)
 
     demo = create_ui(rag_chain)
+
+    start_http_server(
+        port=8000,
+        addr="0.0.0.0",
+    )
 
     demo.launch(
         server_name="0.0.0.0",

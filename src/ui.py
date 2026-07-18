@@ -2,6 +2,14 @@ import gradio as gr
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.runnables import Runnable
 from translations import TRANSLATIONS
+import time
+
+from metrics import (
+    RAG_ACTIVE_REQUESTS,
+    RAG_REQUEST_DURATION,
+    RAG_REQUESTS,
+    RAG_RESPONSE_CHARACTERS,
+)
 
 
 def convert_history(history: list) -> list:
@@ -63,16 +71,28 @@ def create_ui(
         if not question:
             return texts["empty_question"]
 
+        started_at = time.perf_counter()
+        RAG_ACTIVE_REQUESTS.inc()
+
         try:
-            return rag_chains[language].invoke(
+            response = rag_chains[language].invoke(
                 {
                     "question": question,
                     "chat_history": convert_history(history),
                 }
             )
+            RAG_REQUESTS.labels(status="success").inc()
+            RAG_RESPONSE_CHARACTERS.observe(len(response))
+            return response
         except Exception as error:
+            RAG_REQUESTS.labels(status="error").inc()
             print(f"RAG error: {error}")
             return texts["error_message"]
+
+        finally:
+            RAG_REQUEST_DURATION.observe(time.perf_counter() - started_at)
+
+            RAG_ACTIVE_REQUESTS.dec()
 
     with gr.Blocks(title="Digital Twin Assistant") as demo:
         selected_language = gr.State("pt")
