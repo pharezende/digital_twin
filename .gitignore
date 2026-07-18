@@ -9,3 +9,8 @@ wheels/
 # Virtual environments
 .venv
 .env
+.vscode/
+documents/cv_pedro.pdf
+documents/cv_pedro_2.pdf
+persistence/
+.pytest_cache
