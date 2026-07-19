@@ -44,8 +44,8 @@ def split_documents(documents: list[Document]) -> list[Document]:
     """Split documents into smaller overlapping chunks."""
 
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=100,
+        chunk_size=1000,
+        chunk_overlap=200,
         add_start_index=True,
     )
 
