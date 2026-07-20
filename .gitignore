@@ -9,6 +9,7 @@ wheels/
 # Virtual environments
 .venv
 .env
+.env.docker
 documents/self-description.odt
 .pytest_cache
 persistence/
