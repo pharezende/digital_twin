@@ -44,8 +44,8 @@ def split_documents(documents: list[Document]) -> list[Document]:
     """Split documents into smaller overlapping chunks."""
 
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
+        chunk_size=500,
+        chunk_overlap=100,
         add_start_index=True,
     )
 
@@ -63,6 +63,7 @@ def create_or_get_vector_store(
         persist_directory=str(CHROMA_DIRECTORY),
     )
 
+    print(f"Collection size:{vector_store._collection.count()}")
     if reset_vector_store:
         print("Resetting the existing vector-store collection.")
         vector_store.reset_collection()
@@ -98,7 +99,7 @@ def create_rag_chains(retriever: VectorStoreRetriever) -> dict[str, Runnable]:
     llm = ChatOllama(
         model=LLM_MODEL,
         base_url=OLLAMA_BASE_URL,
-        temperature=0,  # Low temperature to be less creative
+        temperature=0.0,  # Low temperature to be less creative
     )
 
     rag_chains = {
