@@ -14,3 +14,12 @@ documents/self-description.odt
 .pytest_cache
 persistence/
 .vscode
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+*.tfvars
+crash.log
+crash.*.log
