@@ -7,7 +7,7 @@ services:
     env_file:
       - .env.docker
     volumes:
-      - ./container_data:/app/persistence
+      - ./persistence/chroma_db_docker:/app/persistence
       - ./documents:/app/documents
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -20,3 +20,15 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     depends_on:
       - app
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  grafana-data:

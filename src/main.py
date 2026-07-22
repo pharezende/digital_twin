@@ -62,8 +62,6 @@ def create_or_get_vector_store(
         embedding_function=embedding,
         persist_directory=str(CHROMA_DIRECTORY),
     )
-
-    print(f"Collection size:{vector_store._collection.count()}")
     if reset_vector_store:
         print("Resetting the existing vector-store collection.")
         vector_store.reset_collection()
@@ -122,6 +120,7 @@ def main():
         model=EMBEDDING_MODEL,
         base_url=OLLAMA_BASE_URL,
     )
+    print(f"RESET VECTOR STORE: {RESET_VECTOR_STORE}")
 
     vector_store = create_or_get_vector_store(embedding, RESET_VECTOR_STORE)
 
