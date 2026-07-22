@@ -1,0 +1,806 @@
+{
+  "apiVersion": "dashboard.grafana.app/v2",
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "adr244p",
+    "namespace": "default",
+    "uid": "3b92173f-23ae-489a-8146-8a5b48c3e844",
+    "resourceVersion": "1784721106227019",
+    "generation": 18,
+    "creationTimestamp": "2026-07-21T20:24:22Z",
+    "labels": {
+      "grafana.app/deprecatedInternalID": "3504372359458816"
+    },
+    "annotations": {
+      "grafana.app/createdBy": "user:efst692bn7cw0b",
+      "grafana.app/folder": "",
+      "grafana.app/saved-from-ui": "Grafana v13.1.1 (a9cee6e172)",
+      "grafana.app/updatedBy": "user:efst692bn7cw0b",
+      "grafana.app/updatedTimestamp": "2026-07-22T11:51:46Z"
+    }
+  },
+  "spec": {
+    "annotations": [
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "query": {
+            "kind": "DataQuery",
+            "group": "grafana",
+            "version": "v0",
+            "datasource": {
+              "name": "-- Grafana --"
+            },
+            "spec": {}
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "builtIn": true
+        }
+      }
+    ],
+    "cursorSync": "Off",
+    "editable": true,
+    "elements": {
+      "panel-1": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1,
+          "title": "TOTAL RAG REQUESTS[Success]",
+          "description": "Total number of successful RAG requests.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "builder",
+                        "expr": "sum(increase(rag_requests_total{status=\"success\"}[$__range]))",
+                        "instant": false,
+                        "legendFormat": "__auto",
+                        "range": true
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.1.1",
+            "spec": {
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds",
+                    "fixedColor": "#ad46ff"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-2": {
+        "kind": "Panel",
+        "spec": {
+          "id": 2,
+          "title": "RAG Processing Duration Time",
+          "description": "RAG processing duration from question input to generated response",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(increase(rag_processing_duration_seconds_bucket{le=\"5.0\"}[$__range]))",
+                        "legendFormat": "0-5s",
+                        "range": true
+                      }
+                    },
+                    "refId": "0 - 5",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(increase(rag_processing_duration_seconds_bucket{le=\"10.0\"}[$__range]))\n-\nsum(increase(rag_processing_duration_seconds_bucket{le=\"5.0\"}[$__range]))",
+                        "instant": false,
+                        "legendFormat": "5-10s",
+                        "range": true
+                      }
+                    },
+                    "refId": "5 - 10",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(increase(rag_processing_duration_seconds_bucket{le=\"20.0\"}[$__range]))\n-\nsum(increase(rag_processing_duration_seconds_bucket{le=\"10.0\"}[$__range]))",
+                        "instant": false,
+                        "legendFormat": "10-20s",
+                        "range": true
+                      }
+                    },
+                    "refId": "10 - 20",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(increase(rag_processing_duration_seconds_bucket{le=\"30.0\"}[$__range]))\n-\nsum(increase(rag_processing_duration_seconds_bucket{le=\"20.0\"}[$__range]))",
+                        "instant": false,
+                        "legendFormat": "20-30s",
+                        "range": true
+                      }
+                    },
+                    "refId": "20 - 30",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(increase(rag_processing_duration_seconds_bucket{le=\"+Inf\"}[$__range]))\n-\nsum(increase(rag_processing_duration_seconds_bucket{le=\"30.0\"}[$__range]))",
+                        "instant": false,
+                        "legendFormat": "30s or higher",
+                        "range": true
+                      }
+                    },
+                    "refId": "Higher than 30",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "piechart",
+            "version": "13.1.1",
+            "spec": {
+              "options": {
+                "displayLabels": [
+                  "percent"
+                ],
+                "legend": {
+                  "displayMode": "list",
+                  "overflow": "ellipsis",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "sort": "desc",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic",
+                    "fixedColor": "#73BF69"
+                  },
+                  "custom": {
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "id": 3,
+          "title": "TOTAL RAG REQUESTS[Error]",
+          "description": "Total number of failed RAG requests.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(increase(rag_requests_total{status=\"error\"}[$__range]))",
+                        "instant": false,
+                        "legendFormat": "__auto",
+                        "range": true
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.1.1",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-4": {
+        "kind": "Panel",
+        "spec": {
+          "id": 4,
+          "title": "# of Documents",
+          "description": "Number of chunks currently stored in Chroma",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "builder",
+                        "expr": "vector_store_documents",
+                        "legendFormat": "__auto",
+                        "range": true
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.1.1",
+            "spec": {
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds",
+                    "fixedColor": "#ad46ff"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-5": {
+        "kind": "Panel",
+        "spec": {
+          "id": 5,
+          "title": "# RAG Response Characters ",
+          "description": "Number of characters in generated response",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(increase(rag_response_characters{le=\"50\"}[$__range]))",
+                        "legendFormat": "__auto",
+                        "range": true
+                      }
+                    },
+                    "refId": "0 - 5",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(\n  increase(\n    rag_response_characters_bucket{le=\"100.0\"}[$__range]\n  )\n)\n-\nsum(\n  increase(\n    rag_response_characters_bucket{le=\"50.0\"}[$__range]\n  )\n)",
+                        "instant": false,
+                        "legendFormat": "50-100",
+                        "range": true
+                      }
+                    },
+                    "refId": "5 - 10",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(\n  increase(\n    rag_response_characters_bucket{le=\"250.0\"}[$__range]\n  )\n)\n-\nsum(\n  increase(\n    rag_response_characters_bucket{le=\"100.0\"}[$__range]\n  )\n)",
+                        "instant": false,
+                        "legendFormat": "100-250",
+                        "range": true
+                      }
+                    },
+                    "refId": "10 - 20",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(\n  increase(\n    rag_response_characters_bucket{le=\"500.0\"}[$__range]\n  )\n)\n-\nsum(\n  increase(\n    rag_response_characters_bucket{le=\"250.0\"}[$__range]\n  )\n)",
+                        "instant": false,
+                        "legendFormat": "250-500",
+                        "range": true
+                      }
+                    },
+                    "refId": "20 - 30",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(\n  increase(\n    rag_response_characters_bucket{le=\"1000.0\"}[$__range]\n  )\n)\n-\nsum(\n  increase(\n    rag_response_characters_bucket{le=\"500.0\"}[$__range]\n  )\n)",
+                        "instant": false,
+                        "legendFormat": "500-1000",
+                        "range": true
+                      }
+                    },
+                    "refId": "Higher than 30",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(\n  increase(\n    rag_response_characters_bucket{le=\"2000.0\"}[$__range]\n  )\n)\n-\nsum(\n  increase(\n    rag_response_characters_bucket{le=\"1000.0\"}[$__range]\n  )\n)",
+                        "instant": false,
+                        "legendFormat": "1000-2000",
+                        "range": true
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "bfst7j2fm6qyoe"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(\n  increase(\n    rag_response_characters_bucket{le=\"5000.0\"}[$__range]\n  )\n)\n-\nsum(\n  increase(\n    rag_response_characters_bucket{le=\"2000.0\"}[$__range]\n  )\n)",
+                        "format": "time_series",
+                        "instant": false,
+                        "legendFormat": "2000-5000",
+                        "range": true
+                      }
+                    },
+                    "refId": "B",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "piechart",
+            "version": "13.1.1",
+            "spec": {
+              "options": {
+                "displayLabels": [
+                  "percent"
+                ],
+                "legend": {
+                  "displayMode": "list",
+                  "overflow": "ellipsis",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "sort": "desc",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic",
+                    "fixedColor": "#73BF69"
+                  },
+                  "custom": {
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "layout": {
+      "kind": "GridLayout",
+      "spec": {
+        "items": [
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 0,
+              "width": 6,
+              "height": 3,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-1"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-2"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 3,
+              "width": 6,
+              "height": 3,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-3"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 6,
+              "width": 6,
+              "height": 4,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-4"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 12,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-5"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "links": [],
+    "liveNow": false,
+    "preload": false,
+    "tags": [],
+    "timeSettings": {
+      "timezone": "browser",
+      "from": "now-6h",
+      "to": "now",
+      "autoRefresh": "",
+      "autoRefreshIntervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "hideTimepicker": false,
+      "fiscalYearStartMonth": 0
+    },
+    "title": "Digital Twin Assistant Dashboard",
+    "variables": [],
+    "preferences": {
+      "layout": {
+        "kind": "GridLayout",
+        "spec": {
+          "items": []
+        }
+      }
+    }
+  }
+}
