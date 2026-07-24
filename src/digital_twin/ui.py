@@ -1,7 +1,7 @@
 import gradio as gr
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.runnables import Runnable
-from .translations import TRANSLATIONS
+from .texts import TEXTS
 import time
 
 from .metrics import (
@@ -32,136 +32,68 @@ def convert_history(history: list) -> list:
     return messages
 
 
-def select_language(language: str):
-    """Select the language, can be portuguese or english."""
-    texts = TRANSLATIONS[language]
-
-    initial_history = [
-        {
-            "role": "assistant",
-            "content": texts["welcome_message"],
-        }
-    ]
-
-    return (
-        gr.update(visible=False),
-        gr.update(visible=True),
-        language,
-        f"# {texts['title']}",
-        texts["description"],
-        gr.update(placeholder=texts["placeholder"]),
-        initial_history,
-    )
-
-
 def create_ui(
-    rag_chains: dict[str, Runnable],
+    rag_chain: Runnable,
 ) -> gr.Blocks:
-    """Create UI using gradio"""
+    """Create the Gradio user interface."""
 
     def respond(
         message: str,
-        history: list,
-        language: str,
+        history: list[dict],
     ) -> str:
-        texts = TRANSLATIONS[language]
         question = message.strip()
 
         if not question:
-            return texts["empty_question"]
+            return TEXTS["empty_question"]
 
         started_at = time.perf_counter()
 
         try:
-            response = rag_chains[language].invoke(
+            response = rag_chain.invoke(
                 {
                     "question": question,
                     "chat_history": convert_history(history),
                 }
             )
+
             RAG_REQUESTS.labels(status="success").inc()
             RAG_RESPONSE_CHARACTERS.observe(len(response))
+
             return response
+
         except Exception as error:
             RAG_REQUESTS.labels(status="error").inc()
             print(f"RAG error: {error}")
-            return texts["error_message"]
+
+            return TEXTS["error_message"]
 
         finally:
             RAG_PROCESSING_DURATION.observe(time.perf_counter() - started_at)
 
     with gr.Blocks(title="Digital Twin Assistant") as demo:
-        selected_language = gr.State("pt")
+        gr.Markdown(TEXTS["title"])
 
-        # Initial screen
-        with gr.Column(visible=True) as language_screen:
-            gr.Markdown(
-                """
-                # Bem-vindo / Welcome
+        chatbot = gr.Chatbot(
+            value=[
+                {
+                    "role": "assistant",
+                    "content": TEXTS["welcome_message"],
+                }
+            ],
+            elem_id="chatbot",
+            height=520,
+        )
 
-                Escolha o idioma para continuar.  
-                Choose a language to continue.
-                """
-            )
+        textbox = gr.Textbox(
+            elem_id="chat-input",
+            container=False,
+            placeholder=TEXTS["placeholder"],
+        )
 
-            with gr.Row():
-                portuguese_button = gr.Button(
-                    "🇧🇷 Português",
-                    variant="primary",
-                )
-
-                english_button = gr.Button(
-                    "🇺🇸 English",
-                )
-
-        # The chatbox screen, perhaps this can become a new function later.
-        with gr.Column(visible=False) as application_screen:
-            title = gr.Markdown()
-            description = gr.Markdown()
-
-            chatbot = gr.Chatbot(
-                elem_id="chatbot",
-                height=520,
-            )
-
-            textbox = gr.Textbox(
-                elem_id="chat-input",
-                container=False,
-            )
-
-            gr.ChatInterface(
-                fn=respond,
-                chatbot=chatbot,
-                textbox=textbox,
-                additional_inputs=[selected_language],
-            )
-
-            portuguese_button.click(
-                fn=lambda: select_language("pt"),
-                inputs=None,
-                outputs=[
-                    language_screen,
-                    application_screen,
-                    selected_language,
-                    title,
-                    description,
-                    textbox,
-                    chatbot,
-                ],
-            )
-
-            english_button.click(
-                fn=lambda: select_language("en"),
-                inputs=None,
-                outputs=[
-                    language_screen,
-                    application_screen,
-                    selected_language,
-                    title,
-                    description,
-                    textbox,
-                    chatbot,
-                ],
-            )
+        gr.ChatInterface(
+            fn=respond,
+            chatbot=chatbot,
+            textbox=textbox,
+        )
 
     return demo

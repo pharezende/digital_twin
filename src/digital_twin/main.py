@@ -1,5 +1,5 @@
 from digital_twin.config import CHROMA_DIRECTORY
-from digital_twin.rag import create_rag_chains
+from digital_twin.rag import create_rag_chain
 from digital_twin.vector_store import create_or_get_vector_store
 from prometheus_client import start_http_server
 from langchain_core.vectorstores import VectorStoreRetriever
@@ -7,6 +7,8 @@ from langchain_ollama import OllamaEmbeddings
 from .ui import create_ui
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
+from .prompt import PROMPT
+from langchain_ollama import ChatOllama
 
 
 from .config import (
@@ -17,6 +19,7 @@ from .config import (
     PDF_PATH,
     CHROMA_COLLECTION,
     CHROMA_DIRECTORY,
+    LLM_MODEL,
 )
 
 
@@ -64,7 +67,13 @@ def main():
         },
     )
 
-    rag_chain = create_rag_chains(retriever)
+    llm = ChatOllama(
+        model=LLM_MODEL,
+        base_url=OLLAMA_BASE_URL,
+        temperature=0.0,  # Low temperature to be less creative
+    )
+
+    rag_chain = create_rag_chain(retriever, PROMPT, llm)
 
     demo = create_ui(rag_chain)
 
