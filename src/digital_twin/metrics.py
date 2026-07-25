@@ -2,7 +2,7 @@ from prometheus_client import Counter, Gauge, Histogram
 
 
 RAG_REQUESTS = Counter(
-    "rag_requests_total",
+    "rag_requests",
     "Total number of RAG requests",
     ["status"],
 )

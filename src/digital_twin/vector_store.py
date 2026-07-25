@@ -23,7 +23,6 @@ def create_or_get_vector_store(
         vector_store.reset_collection()
 
     if vector_store._collection.count() > 0:
-        print(f"ids: {vector_store.get()["ids"]}")
         return vector_store
 
     vector_store.add_documents(chunks)
