@@ -6,12 +6,16 @@ ENV PYTHONPATH=/app/src
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir uv
+# FAST: Grab the pre-compiled uv binary instantly
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 COPY pyproject.toml uv.lock ./
 
-RUN uv sync --frozen --no-dev --no-install-project
+# ULTRA-FAST: Leverage Docker caching for uv downloads
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project
 
 COPY src ./src
 
-CMD ["/app/.venv/bin/python", "-m", "digital_twin.main"]
+# RUN WITH UV: Let uv manage the environment execution
+CMD ["uv", "run", "python", "-m", "digital_twin.main"]
