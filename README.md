@@ -1,3 +1,13 @@
+---
+title: Digital Twin
+emoji: 🚀
+colorFrom: indigo
+colorTo: gray
+sdk: static
+pinned: false
+short_description: The Digital Twin App of myself.
+---
+
 # Digital Twin Assistant
 
 The Digital Twin Assistant is a containerized Retrieval-Augmented Generation (RAG) application that lets users interact with a digital representation of a person’s profile.
