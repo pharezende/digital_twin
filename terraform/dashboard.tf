@@ -6,7 +6,12 @@ resource "grafana_apps_dashboard_dashboard_v2" "digital_twin" {
   spec {
     json = jsonencode(
       jsondecode(
-        file("${path.module}/dashboards/dashboard.json")
+        templatefile(
+          "${path.module}/dashboards/dashboard.json.tftpl",
+          {
+            prometheus_uid = grafana_data_source.prometheus.uid
+          }
+        )
       ).spec
     )
   }
@@ -15,4 +20,8 @@ resource "grafana_apps_dashboard_dashboard_v2" "digital_twin" {
     allow_ui_updates = true
     overwrite        = true
   }
+
+  depends_on = [
+    grafana_data_source.prometheus
+  ]
 }
