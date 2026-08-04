@@ -106,6 +106,7 @@
               },
               "fieldConfig": {
                 "defaults": {
+                  "decimals": 0,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -367,6 +368,7 @@
               },
               "fieldConfig": {
                 "defaults": {
+                  "decimals": 0,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -394,7 +396,7 @@
         "kind": "Panel",
         "spec": {
           "id": 4,
-          "title": "# of Documents",
+          "title": "# of Chunks",
           "description": "Number of chunks currently stored in Chroma",
           "links": [],
           "data": {
@@ -451,6 +453,7 @@
               },
               "fieldConfig": {
                 "defaults": {
+                  "decimals": 0,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -498,30 +501,9 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(increase(rag_response_characters{le=\"50\"}[$__range]))",
-                        "legendFormat": "__auto",
-                        "range": true
-                      }
-                    },
-                    "refId": "0 - 5",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "${prometheus_uid}"
-                      },
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum(\n  increase(\n    rag_response_characters_bucket{le=\"100.0\"}[$__range]\n  )\n)\n-\nsum(\n  increase(\n    rag_response_characters_bucket{le=\"50.0\"}[$__range]\n  )\n)",
+                        "expr": "sum(\n  increase(\n    rag_response_characters_bucket{le=\"100.0\"}[$__range]\n  )\n)",
                         "instant": false,
-                        "legendFormat": "50-100",
+                        "legendFormat": "0-100",
                         "range": true
                       }
                     },

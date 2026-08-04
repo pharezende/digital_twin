@@ -3,6 +3,8 @@ __pycache__/
 .env
 .env.docker
 documents/self-description.odt
+documents/descricao.odt
+documents/example.backup.pdf
 .pytest_cache
 persistence/
 .vscode
