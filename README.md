@@ -8,11 +8,19 @@ pinned: false
 short_description: The Digital Twin App of myself.
 ---
 
+
 # Digital Twin Assistant
 
 The Digital Twin Assistant is a containerized Retrieval-Augmented Generation (RAG) application that lets users interact with a digital representation of a person’s profile.
 
 It processes profile documents, generates embeddings with Ollama, stores them in ChromaDB, retrieves relevant context, and produces answers through LangChain and a local LLM. The application provides a Gradio interface, persistent storage, Prometheus metrics, and Grafana dashboards.
+
+## Screenshots
+
+| | |
+| :---: | :---: |
+|  ![Image 1](assets/chat_example.png) | ![Image 2](assets/grafana.png) |
+
 
 ## Prerequisites
 
@@ -157,8 +165,3 @@ terraform apply
 ```
 
 Grafana must be running before applying the Terraform configuration.
-
-
-| | |
-| :---: | :---: |
-| ![Image 1](assets/language_selection.png) | ![Image 2](assets/chat_example.png) |
